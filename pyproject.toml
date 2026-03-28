@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cauchy-activation"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ai-edge-litert>=2.1.2",
+    "matplotlib>=3.10.8",
+    "numpy>=2.4.1",
+    "onnx>=1.20.1",
+    "onnx-graphsurgeon>=0.5.8",
+    "onnx2tf>=1.28.8",
+    "onnxruntime-gpu>=1.24.1",
+    "onnxslim>=0.1.84",
+    "opencv-python>=4.13.0.90",
+    "pandas>=3.0.1",
+    "scikit-image>=0.26.0",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.17.0",
+    "sng4onnx>=2.0.0",
+    "sympy>=1.14.0",
+    "tensorflow>=2.20.0",
+    "tf-keras>=2.15.0",
+    "tqdm>=4.67.3",
+    "ultralytics>=8.4.9",
+]
+
+
+[project.optional-dependencies]
+cpu = ["torch>=2.7.0", "torchvision>=0.22.0"]
+cu128 = ["torch>=2.7.0", "torchvision>=0.22.0"]
+cu130 = ["torch>=2.7.0", "torchvision>=0.22.0"]
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "cu128" }, { extra = "cu130" }]]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu130", extra = "cu130" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu130", extra = "cu130" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+
+
+[dependency-groups]
+dev = ["ipython>=9.10.0", "jupyter>=1.1.1", "pip>=26.0.1"]
