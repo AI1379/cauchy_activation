@@ -1,6 +1,6 @@
 # Cauchy Activation & Residual Mixer
 
-Python >= 3.12 的机器学习项目，对比 **Cauchy 残差混合** 与标准残差在曲线拟合和 PDE 求解中的表现。
+Python >= 3.12 的机器学习项目，对比 **Cauchy / Gaussian 残差混合** 与标准残差在曲线拟合和 PDE 求解中的表现。
 
 ## 项目结构
 
@@ -14,7 +14,8 @@ cauchy_activation/
 ├── notebooks/
 │   └── cauchy_res_mixer/
 │       ├── train_test_cauchy_res_mixer.ipynb        # 实验 1：曲线拟合
-│       └── train_test_cauchy_res_mixer_pde.ipynb    # 实验 2：PDE PINN 求解
+│       ├── train_test_cauchy_res_mixer_pde.ipynb    # 实验 2：PDE PINN 求解
+│       └── train_test_pinn_residual_compare.ipynb    # 实验 3：PINN 三组残差初测
 ├── pyproject.toml                   # 项目配置与依赖
 └── README.md                        # 本文件
 ```
@@ -78,6 +79,7 @@ source .venv/bin/activate
 2. 打开任一 notebook 文件：
    - `notebooks/cauchy_res_mixer/train_test_cauchy_res_mixer.ipynb`
    - `notebooks/cauchy_res_mixer/train_test_cauchy_res_mixer_pde.ipynb`
+  - `notebooks/cauchy_res_mixer/train_test_pinn_residual_compare.ipynb`
 3. 选择正确的 Python 内核（应自动指向虚拟环境）
 4. 逐个单元执行或全选运行
 
@@ -148,6 +150,31 @@ $$L = L_{pde} + w_{bc} \cdot L_{bc}$$
 - 各模型与解析解的 MSE 误差对比
 - 最优模型与解析解的场图及误差热力图
 
+### PINN 初步对比实验 `train_test_pinn_residual_compare.ipynb`
+
+**目标 PDE**：
+
+$$-\Delta u(x,y) = 2\pi^2\sin(\pi x)\sin(\pi y), \quad (x,y) \in [-1,1]^2$$
+
+**边界条件**：
+
+$$u(x,y) = 0, \quad (x,y) \in \partial[-1,1]^2$$
+
+
+**测试对象**：
+
+- 三种残差混合方式：`standard`、`cauchy`、`gaussian`
+- 统一使用 `ReLU` 作为激活函数
+- 默认网络：4 层、64 隐层维度
+- 实验代码全部放在 notebook 内，和库模块分离
+
+**输出**：
+
+- 训练损失曲线对比
+- PDE / 边界损失曲线对比
+- 网格上的 MSE、相对 $L_2$ 误差和最大绝对误差
+- 结果图和 JSON 会保存到 `artifacts/pinn_residual_compare/`
+
 ---
 
 ## 依赖概览
@@ -203,6 +230,15 @@ lr = 1e-5
 epochs = 1200
 lr = 1e-3
 w_bc = 20.0
+```
+
+**PINN 初步对比**：
+
+```python
+epochs = 400
+lr = 1e-3
+n_interior = 1024
+n_boundary_each = 256
 ```
 
 ### 更改采样点数 (PDE Only)

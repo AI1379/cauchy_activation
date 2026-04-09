@@ -1,0 +1,80 @@
+{
+  "config": {
+    "residual_modes": [
+      "standard",
+      "cauchy",
+      "gaussian"
+    ],
+    "activation_mode": "relu",
+    "num_layers": 2,
+    "hidden_dim": 8,
+    "epochs": 1,
+    "lr": 0.001,
+    "n_interior": 8,
+    "n_boundary_each": 4,
+    "bc_weight": 20.0,
+    "seed": 42,
+    "device": null,
+    "grid_size": 9,
+    "output_dir": "artifacts/pinn_smoke_test_2"
+  },
+  "results": [
+    {
+      "residual_mode": "standard",
+      "history": {
+        "loss": [
+          54.08636474609375
+        ],
+        "pde_loss": [
+          38.65928649902344
+        ],
+        "bc_loss": [
+          0.7713539600372314
+        ]
+      },
+      "metrics": {
+        "mse": 0.9987622499465942,
+        "rel_l2": 2.2486071586608887,
+        "max_abs_error": 2.159541368484497
+      }
+    },
+    {
+      "residual_mode": "cauchy",
+      "history": {
+        "loss": [
+          75.4954605102539
+        ],
+        "pde_loss": [
+          61.77125930786133
+        ],
+        "bc_loss": [
+          0.6862099766731262
+        ]
+      },
+      "metrics": {
+        "mse": 0.6561989784240723,
+        "rel_l2": 1.8226374387741089,
+        "max_abs_error": 2.019474983215332
+      }
+    },
+    {
+      "residual_mode": "gaussian",
+      "history": {
+        "loss": [
+          86.46595764160156
+        ],
+        "pde_loss": [
+          60.25037384033203
+        ],
+        "bc_loss": [
+          1.310779094696045
+        ]
+      },
+      "metrics": {
+        "mse": 1.399100661277771,
+        "rel_l2": 2.6613805294036865,
+        "max_abs_error": 2.3630518913269043
+      }
+    }
+  ]
+}

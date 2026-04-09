@@ -23,7 +23,7 @@ class CauchyActivation(nn.Module):
 
 
 class CauchyResidualMLP(nn.Module):
-    """Minimal MLP with optional Cauchy distance-based residual mixing."""
+    """Minimal MLP with standard, Cauchy, or Gaussian residual mixing."""
 
     def __init__(
         self,
@@ -37,8 +37,8 @@ class CauchyResidualMLP(nn.Module):
         super().__init__()
         if num_layers < 1:
             raise ValueError("num_layers must be >= 1")
-        if residual_mode not in {"standard", "cauchy"}:
-            raise ValueError("residual_mode must be one of: standard, cauchy")
+        if residual_mode not in {"standard", "cauchy", "gaussian"}:
+            raise ValueError("residual_mode must be one of: standard, cauchy, gaussian")
 
         self.residual_mode = residual_mode
         self.num_layers = num_layers
@@ -63,7 +63,7 @@ class CauchyResidualMLP(nn.Module):
         self.mix_raw_lambda = nn.Parameter(torch.zeros(num_layers + 1))
         self.mix_raw_d = nn.Parameter(torch.ones(num_layers + 1))
 
-    def _cauchy_mix(
+    def _residual_mix(
         self, history: list[torch.Tensor], target_layer: int
     ) -> torch.Tensor:
         # target_layer is 1-based index of the current layer in the stack.
@@ -74,8 +74,13 @@ class CauchyResidualMLP(nn.Module):
         distances = torch.arange(
             target_layer, target_layer - count, -1, device=history[0].device
         )
-        weights = lam / (distances.float().pow(2) + d.pow(2))
-        weights = weights / (weights.sum() + 1e-8)
+        if self.residual_mode == "gaussian":
+            weights = lam * torch.exp(-0.5 * distances.float().pow(2) / d.pow(2))
+        else:
+            weights = lam / (distances.float().pow(2) + d.pow(2))
+        
+        # 移除了强制的归一化 weights = weights / (weights.sum() + 1e-8) 
+        # 从而保留住残差路线原本的梯度，让 lam 可以自行放大来避免梯度消失
 
         stacked = torch.stack(history, dim=0)
         return (weights[:, None, None] * stacked).sum(dim=0)
@@ -89,7 +94,7 @@ class CauchyResidualMLP(nn.Module):
             if self.residual_mode == "standard":
                 h = h + transformed
             else:
-                h = transformed + self._cauchy_mix(history, layer_idx)
+                h = transformed + self._residual_mix(history, layer_idx)
             history.append(h)
 
         return self.head(h)
